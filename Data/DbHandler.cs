@@ -11,6 +11,7 @@ namespace cendracine.Data
 {
     public class DbHandler : DbContext
     {
+        public DbHandler() { }
         public DbHandler(DbContextOptions<DbHandler> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }

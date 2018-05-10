@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ConnectionString" xml:space="preserve">
-    <value>Data Source=.;Initial Catalog=DATABASE_NAME;Integrated Security=True;</value>
+    <value>Server=(localdb)\MSSQLLocalDB;Database=cendracine;Trusted_Connection=True;MultipleActiveResultSets=True;</value>
   </data>
   <data name="Domain" xml:space="preserve">
     <value>cendracine.com</value>

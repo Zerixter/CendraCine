@@ -18,10 +18,10 @@ namespace cendracine.Controllers
     public class AccountController : Controller
     {
         private readonly DbHandler dbHandler;
-        
-        public AccountController(DbHandler _dbHandler)
+
+        public AccountController()
         {
-            dbHandler = _dbHandler;
+            dbHandler = new DbHandler();
         }
 
         [HttpGet]
@@ -88,6 +88,41 @@ namespace cendracine.Controllers
                     return BadRequest();
                 var token = LoginUser(user);
                 return Ok(token);
+            }
+            return BadRequest();
+        }
+
+        [HttpPut]
+        public ActionResult Update([FromBody] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                User UserToModify = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
+                if (UserToModify is null)
+                    return BadRequest();
+
+                UserToModify.Name = user.Name;
+                UserToModify.Password = user.Password;
+
+                dbHandler.Users.Update(UserToModify);
+                dbHandler.SaveChanges();
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public ActionResult Delete([FromBody] User user)
+        {
+            if (ModelState.IsValid)
+            {
+                User UserToDelete = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
+                if (UserToDelete is null)
+                    return BadRequest();
+
+                dbHandler.Users.Remove(UserToDelete);
+                dbHandler.SaveChanges();
+                return Ok();
             }
             return BadRequest();
         }

@@ -61,7 +61,7 @@ namespace cendracine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data Source=.;Initial Catalog=DATABASE_NAME;Integrated Security=True;.
+        ///   Looks up a localized string similar to Server=(localdb)\MSSQLLocalDB;Database=cendracine;Trusted_Connection=True;MultipleActiveResultSets=True;.
         /// </summary>
         internal static string ConnectionString {
             get {
