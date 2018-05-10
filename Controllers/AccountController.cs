@@ -1,135 +1,116 @@
-﻿using System;
+﻿using cendracine.Data;
+using cendracine.Models;
+using cendracine.Properties;
+using cendracine.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using cendracine.Data;
-using cendracine.Helpers;
-using cendracine.Models;
-using cendracine.ViewModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+using System.Text;
 
 namespace cendracine.Controllers
 {
     [Produces("application/json")]
-    [Route("api/Account")]
+    [Route("api/account")]
     public class AccountController : Controller
     {
         private readonly DbHandler dbHandler;
-        private readonly UserManager<UserIdentity> userManager;
-        private readonly IJwtFactory jwtFactory;
-        private readonly JwtIssuerOptions jwtOptions;
-        private readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings { Formatting = Formatting.Indented };
-
-        public AccountController(DbHandler _dbHandler, UserManager<UserIdentity> _userManager, IJwtFactory _jwtFactory, IOptions<JwtIssuerOptions> _jwtOptions)
+        
+        public AccountController(DbHandler _dbHandler)
         {
             dbHandler = _dbHandler;
-            userManager = _userManager;
-            jwtFactory = _jwtFactory;
-            jwtOptions = _jwtOptions.Value;
+        }
+
+        [HttpGet]
+        public ActionResult Get()
+        {
+            string Email = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+
+            if (Email is null)
+                return BadRequest("No user found in the database");
+
+
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
+
+            if (user is null)
+                return NotFound();
+
+            return Ok(user);
+        }
+
+        [HttpGet("{id}", Name = "Get")]
+        public ActionResult Get(Guid id)
+        {
+            User user = dbHandler.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user is null)
+                return NotFound();
+
+            return Ok(user);
         }
 
         [HttpPost("register")]
-        public IActionResult CreateUser([FromBody] RegisterViewModel model)
+        public ActionResult Register([FromBody] RegisterViewModel model)
         {
-            List<object> Errors = RegisterViewModel.ValidateRegister(dbHandler, model);
-
-            if (Errors.Count > 0)
+            if (ModelState.IsValid)
             {
-                return BadRequest(Errors);
-            }
-
-            try
-            {
-                UserIdentity userIdentity = new UserIdentity
+                User user = new User
                 {
                     Name = model.Name,
                     Email = model.Email,
-                    UserName = model.Email
+                    Password = model.Password
                 };
 
-                User user = new User
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    Identity = userIdentity
-                };
-
-                var result = userManager.CreateAsync(userIdentity, model.Password).GetAwaiter().GetResult();
-
-                dbHandler.DbUsers.Add(user);
-                dbHandler.SaveChanges();
-
-                var identity = GetClaimsIdentity(model.Email, model.Password).GetAwaiter().GetResult();
-                var token = Tokens.GenerateJwt(user.Id.ToString(), identity, jwtFactory, model.Email, jwtOptions, jsonSerializerSettings).GetAwaiter().GetResult();
-                return new OkObjectResult(token);
-            } catch (Exception)
-            {
-                return BadRequest();
+                    dbHandler.Users.Add(user);
+                    dbHandler.SaveChanges();
+                    var token = LoginUser(user);
+                    return Ok(token);
+                } catch (Exception)
+                {
+                    return BadRequest("Error al registrar el usuari");
+                }
             }
+            return BadRequest();
         }
 
         [HttpPost("login")]
-        public IActionResult LoginUser([FromBody] CredentialsViewModel model)
+        public ActionResult Login([FromBody] CredentialsViewModel model)
         {
-            List<object> Errors = CredentialsViewModel.ValidateCredentials(dbHandler, model);
-
-            if (Errors.Count > 0)
+            if (ModelState.IsValid)
             {
-                return BadRequest(Errors);
+                User user = dbHandler.Users.FirstOrDefault(x => x.Email == model.Email && x.Password == model.Password);
+                if (user is null)
+                    return BadRequest();
+                var token = LoginUser(user);
+                return Ok(token);
             }
-
-            UserIdentity userIdentity = null;
-            User user = null;
-            try
-            {
-                var identity = GetClaimsIdentity(model.Email, model.Password).GetAwaiter().GetResult();
-                userIdentity = dbHandler.Users.Where(x => x.UserName == model.Email).FirstOrDefault();
-
-                if (identity is null)
-                {
-                    if (userIdentity is null)
-                    {
-                        Errors.Add(Message.GetMessage("El compte d'usuari introduit és incorrecte"));
-                    } else
-                    {
-                        Errors.Add(Message.GetMessage("La contrasenya introduida no és correcte"));
-                    }
-                    return BadRequest(Errors);
-                }
-                user = dbHandler.DbUsers.Where(x => x.IdentityId == userIdentity.Id).FirstOrDefault();
-
-                string user_id = "";
-                if (user != null)
-                {
-                    user_id = user.Id.ToString();
-                }
-
-                var token = Tokens.GenerateJwt(user_id, identity, jwtFactory, model.Email, jwtOptions, jsonSerializerSettings).GetAwaiter().GetResult();
-                return new OkObjectResult(token);
-            } catch (Exception)
-            {
-                return BadRequest();
-            }
+            return BadRequest();
         }
 
-        private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password)
+        private string LoginUser(User user)
         {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
-                return await Task.FromResult<ClaimsIdentity>(null);
-
-            var userToVerify = await userManager.FindByNameAsync(userName);
-
-            if (userToVerify == null) return await Task.FromResult<ClaimsIdentity>(null);
-
-            if (await userManager.CheckPasswordAsync(userToVerify, password))
+            var claims = new[]
             {
-                return await Task.FromResult(jwtFactory.GenerateClaimsIdentity(userName, userToVerify.Id));
-            }
-            return await Task.FromResult<ClaimsIdentity>(null);
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(user.Role, "")
+            };
+            
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Resources.SecurityKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+
+            var token = new JwtSecurityToken(
+                issuer: Resources.Domain,
+                audience: Resources.Domain,
+                claims: claims,
+                expires: DateTime.Now.AddMinutes(120),
+                signingCredentials: creds);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

@@ -68,5 +68,23 @@ namespace cendracine.Properties {
                 return ResourceManager.GetString("ConnectionString", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to cendracine.com.
+        /// </summary>
+        internal static string Domain {
+            get {
+                return ResourceManager.GetString("Domain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to T7baL8wrN7ViTFG1U2lA.
+        /// </summary>
+        internal static string SecurityKey {
+            get {
+                return ResourceManager.GetString("SecurityKey", resourceCulture);
+            }
+        }
     }
 }

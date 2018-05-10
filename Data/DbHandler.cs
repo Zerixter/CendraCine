@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace cendracine.Data
 {
-    public class DbHandler : IdentityDbContext<UserIdentity>
+    public class DbHandler : DbContext
     {
         public DbHandler(DbContextOptions<DbHandler> options) : base(options) { }
 
-        public DbSet<User> DbUsers { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace cendracine.Models
 {
-    public class User
+    public class Film
     {
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Password { get; set; }
-        public string Email { get; set; }
-        public string Role { get; set; } = "Client";
+        public string Synopsis { get; set; }
+        public string Trailer { get; set; }
+        public int RecommendedAge { get; set; }
     }
 }

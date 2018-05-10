@@ -120,4 +120,10 @@
   <data name="ConnectionString" xml:space="preserve">
     <value>Data Source=.;Initial Catalog=DATABASE_NAME;Integrated Security=True;</value>
   </data>
+  <data name="Domain" xml:space="preserve">
+    <value>cendracine.com</value>
+  </data>
+  <data name="SecurityKey" xml:space="preserve">
+    <value>T7baL8wrN7ViTFG1U2lA</value>
+  </data>
 </root>
