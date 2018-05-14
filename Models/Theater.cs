@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace cendracine.Models
 {
-    public class Billboard
+    public class Theater
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
-        public DateTime BeginDate { get; set; }
+        public int Number { get; set; }
         [Required]
-        public DateTime EndDate { get; set; }
+        public int Capacity { get; set; }
 
-        public virtual List<BillboardMovieRegister> BillboardMovieRegister { get; set; } = new List<BillboardMovieRegister>();
-        public virtual User Owner { get; set; }
+        public virtual List<Projection> Projections { get; set; } = new List<Projection>();
+        public virtual List<Seat> Seats { get; set; } = new List<Seat>();
     }
 }

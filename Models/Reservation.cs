@@ -6,17 +6,19 @@ using System.Threading.Tasks;
 
 namespace cendracine.Models
 {
-    public class Projection
+    public class Reservation
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
-        public DateTime Day { get; set; }
-        [Required]
         public int Hour { get; set; }
+        [Required]
+        public bool Status { get; set; }
+        [Required]
+        public float Quantity { get; set; } 
 
-        public virtual Movie Movie { get; set; }
-        public virtual Theater Theater { get; set; }
-        public virtual List<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public virtual User Owner { get; set; }
+        public virtual Seat Seat { get; set; }
+        public virtual Projection Projection { get; set; }
     }
 }

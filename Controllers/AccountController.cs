@@ -52,6 +52,12 @@ namespace cendracine.Controllers
             return Ok(user);
         }
 
+        public User GetUser(string email, string password)
+        {
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == email && x.Password == password);
+            return user;
+        }
+
         [HttpPost("register")]
         public ActionResult Register([FromBody] RegisterViewModel model)
         {
@@ -69,7 +75,7 @@ namespace cendracine.Controllers
                     dbHandler.Users.Add(user);
                     dbHandler.SaveChanges();
                     var token = LoginUser(user);
-                    return Ok(token);
+                    return Ok();
                 } catch (Exception)
                 {
                     return BadRequest("Error al registrar el usuari");
@@ -120,9 +126,15 @@ namespace cendracine.Controllers
                 if (UserToDelete is null)
                     return BadRequest();
 
-                dbHandler.Users.Remove(UserToDelete);
-                dbHandler.SaveChanges();
-                return Ok();
+                try
+                {
+                    dbHandler.Users.Remove(UserToDelete);
+                    dbHandler.SaveChanges();
+                    return Ok();
+                } catch (Exception)
+                {
+                    return BadRequest();
+                }
             }
             return BadRequest();
         }
