@@ -11,7 +11,7 @@ using System;
 namespace cendracine.Migrations
 {
     [DbContext(typeof(DbHandler))]
-    [Migration("20180514170659_Initial")]
+    [Migration("20180515150630_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -28,7 +28,11 @@ namespace cendracine.Migrations
 
                     b.Property<DateTime>("BeginDate");
 
+                    b.Property<DateTime>("DateCreated");
+
                     b.Property<DateTime>("EndDate");
+
+                    b.Property<string>("Name");
 
                     b.Property<Guid?>("OwnerId");
 

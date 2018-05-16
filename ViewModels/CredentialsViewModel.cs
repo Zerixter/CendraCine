@@ -2,6 +2,7 @@
 using cendracine.Helpers;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -9,7 +10,15 @@ namespace cendracine.ViewModels
 {
     public class CredentialsViewModel
     {
+        public CredentialsViewModel(string _Email, string _Password)
+        {
+            Email = _Email;
+            Password = _Password;
+        }
+
+        [Required, EmailAddress]
         public string Email { get; set; }
+        [Required]
         public string Password { get; set; }
 
         public static List<object> ValidateCredentials(DbHandler db, CredentialsViewModel model)

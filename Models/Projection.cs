@@ -12,8 +12,6 @@ namespace cendracine.Models
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
         public DateTime Day { get; set; }
-        [Required]
-        public int Hour { get; set; }
 
         public virtual Movie Movie { get; set; }
         public virtual Theater Theater { get; set; }

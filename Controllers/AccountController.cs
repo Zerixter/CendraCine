@@ -1,7 +1,9 @@
 ﻿using cendracine.Data;
+using cendracine.Helpers;
 using cendracine.Models;
 using cendracine.Properties;
 using cendracine.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -27,25 +29,19 @@ namespace cendracine.Controllers
         [HttpGet]
         public ActionResult Get()
         {
-            string Email = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-
-            if (Email is null)
-                return BadRequest("No user found in the database");
-
-
+            string Email = User.FindFirstValue(ClaimTypes.Email);
             User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
-
             if (user is null)
-                return NotFound();
+                return BadRequest(Message.GetMessage("No hi ha cap usuari loguejat"));
 
-            return Ok(user);
+            var token = LoginUser(user);
+            return Ok(token);
         }
 
         [HttpGet("{id}", Name = "Get")]
         public ActionResult Get(Guid id)
         {
             User user = dbHandler.Users.FirstOrDefault(x => x.Id == id);
-
             if (user is null)
                 return NotFound();
 
@@ -58,93 +54,86 @@ namespace cendracine.Controllers
             return user;
         }
 
-        [HttpPost("register")]
+        [HttpPost("register"), ValidateModel]
         public ActionResult Register([FromBody] RegisterViewModel model)
         {
-            if (ModelState.IsValid)
+            User user = new User
             {
-                User user = new User
-                {
-                    Name = model.Name,
-                    Email = model.Email,
-                    Password = model.Password
-                };
+                Name = model.Name,
+                Email = model.Email,
+                Password = model.Password
+            };
 
-                try
-                {
-                    dbHandler.Users.Add(user);
-                    dbHandler.SaveChanges();
-                    var token = LoginUser(user);
-                    return Ok();
-                } catch (Exception)
-                {
-                    return BadRequest("Error al registrar el usuari");
-                }
+            try
+            {
+                dbHandler.Users.Add(user);
+                dbHandler.SaveChanges();
+                var token = LoginUser(user);
+                return Ok(token);
+            } catch (Exception)
+            {
+                return BadRequest(Message.GetMessage("Error al registrar el usuari"));
             }
-            return BadRequest();
         }
 
         [HttpPost("login")]
         public ActionResult Login([FromBody] CredentialsViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                User user = dbHandler.Users.FirstOrDefault(x => x.Email == model.Email && x.Password == model.Password);
-                if (user is null)
-                    return BadRequest();
-                var token = LoginUser(user);
-                return Ok(token);
-            }
-            return BadRequest();
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == model.Email && x.Password == model.Password);
+            if (user is null)
+                return BadRequest();
+            var token = LoginUser(user);
+            return Ok(token);
         }
 
         [HttpPut]
         public ActionResult Update([FromBody] User user)
         {
-            if (ModelState.IsValid)
-            {
-                User UserToModify = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
-                if (UserToModify is null)
-                    return BadRequest();
+            User UserToModify = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
+            if (UserToModify is null)
+                return BadRequest(Message.GetMessage("Aquest usuari no existeix"));
 
+            if (user.Name.Length > 0)
                 UserToModify.Name = user.Name;
+            if (user.Password.Length > 0)
                 UserToModify.Password = user.Password;
 
+            try
+            {
                 dbHandler.Users.Update(UserToModify);
                 dbHandler.SaveChanges();
-                return Ok();
+            } catch (Exception)
+            {
+                return BadRequest(Message.GetMessage("Error al actualitzar les dades del usuari"));
             }
-            return BadRequest();
+
+            return Ok();
         }
 
         [HttpDelete]
         public ActionResult Delete([FromBody] User user)
         {
-            if (ModelState.IsValid)
-            {
-                User UserToDelete = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
-                if (UserToDelete is null)
-                    return BadRequest();
+            User UserToDelete = dbHandler.Users.FirstOrDefault(x => x.Id == user.Id);
+            if (UserToDelete is null)
+                return BadRequest(Message.GetMessage("Aquest usuari no existeix"));
 
-                try
-                {
-                    dbHandler.Users.Remove(UserToDelete);
-                    dbHandler.SaveChanges();
-                    return Ok();
-                } catch (Exception)
-                {
-                    return BadRequest();
-                }
+            try
+            {
+                dbHandler.Users.Remove(UserToDelete);
+                dbHandler.SaveChanges();
+                return Ok();
+            } catch (Exception)
+            {
+                return BadRequest(Message.GetMessage("Error al intentar esborrar l'usuari"));
             }
-            return BadRequest();
         }
 
         private string LoginUser(User user)
         {
             var claims = new[]
             {
-                new Claim(ClaimTypes.Name, user.Email),
-                new Claim(user.Role, "")
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
             };
             
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Resources.SecurityKey));

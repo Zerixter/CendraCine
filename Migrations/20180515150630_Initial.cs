@@ -62,7 +62,9 @@ namespace cendracine.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     BeginDate = table.Column<DateTime>(nullable: false),
+                    DateCreated = table.Column<DateTime>(nullable: false),
                     EndDate = table.Column<DateTime>(nullable: false),
+                    Name = table.Column<string>(nullable: true),
                     OwnerId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>

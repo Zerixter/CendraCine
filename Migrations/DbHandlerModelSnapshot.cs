@@ -27,7 +27,11 @@ namespace cendracine.Migrations
 
                     b.Property<DateTime>("BeginDate");
 
+                    b.Property<DateTime>("DateCreated");
+
                     b.Property<DateTime>("EndDate");
+
+                    b.Property<string>("Name");
 
                     b.Property<Guid?>("OwnerId");
 

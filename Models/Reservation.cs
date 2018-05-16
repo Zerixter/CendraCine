@@ -11,11 +11,11 @@ namespace cendracine.Models
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
         [Required]
-        public int Hour { get; set; }
+        public DateTime DateReservated { get; set; }
         [Required]
         public bool Status { get; set; }
         [Required]
-        public float Quantity { get; set; } 
+        public float Price { get; set; } 
 
         public virtual User Owner { get; set; }
         public virtual Seat Seat { get; set; }
