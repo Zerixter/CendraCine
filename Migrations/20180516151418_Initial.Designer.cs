@@ -11,7 +11,7 @@ using System;
 namespace cendracine.Migrations
 {
     [DbContext(typeof(DbHandler))]
-    [Migration("20180515150630_Initial")]
+    [Migration("20180516151418_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,8 +112,6 @@ namespace cendracine.Migrations
 
                     b.Property<DateTime>("Day");
 
-                    b.Property<int>("Hour");
-
                     b.Property<Guid?>("MovieId");
 
                     b.Property<Guid?>("TheaterId");
@@ -132,13 +130,13 @@ namespace cendracine.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Hour");
+                    b.Property<DateTime>("DateReservated");
 
                     b.Property<Guid?>("OwnerId");
 
-                    b.Property<Guid?>("ProjectionId");
+                    b.Property<float>("Price");
 
-                    b.Property<float>("Quantity");
+                    b.Property<Guid?>("ProjectionId");
 
                     b.Property<Guid?>("SeatId");
 

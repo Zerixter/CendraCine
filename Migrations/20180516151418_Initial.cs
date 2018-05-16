@@ -139,7 +139,6 @@ namespace cendracine.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Day = table.Column<DateTime>(nullable: false),
-                    Hour = table.Column<int>(nullable: false),
                     MovieId = table.Column<Guid>(nullable: true),
                     TheaterId = table.Column<Guid>(nullable: true)
                 },
@@ -165,10 +164,10 @@ namespace cendracine.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Hour = table.Column<int>(nullable: false),
+                    DateReservated = table.Column<DateTime>(nullable: false),
                     OwnerId = table.Column<Guid>(nullable: true),
+                    Price = table.Column<float>(nullable: false),
                     ProjectionId = table.Column<Guid>(nullable: true),
-                    Quantity = table.Column<float>(nullable: false),
                     SeatId = table.Column<Guid>(nullable: true),
                     Status = table.Column<bool>(nullable: false)
                 },

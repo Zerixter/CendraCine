@@ -111,8 +111,6 @@ namespace cendracine.Migrations
 
                     b.Property<DateTime>("Day");
 
-                    b.Property<int>("Hour");
-
                     b.Property<Guid?>("MovieId");
 
                     b.Property<Guid?>("TheaterId");
@@ -131,13 +129,13 @@ namespace cendracine.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("Hour");
+                    b.Property<DateTime>("DateReservated");
 
                     b.Property<Guid?>("OwnerId");
 
-                    b.Property<Guid?>("ProjectionId");
+                    b.Property<float>("Price");
 
-                    b.Property<float>("Quantity");
+                    b.Property<Guid?>("ProjectionId");
 
                     b.Property<Guid?>("SeatId");
 

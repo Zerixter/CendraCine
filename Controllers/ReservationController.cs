@@ -34,19 +34,32 @@ namespace cendracine.Controllers
             User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
             if (user is null)
                 return BadRequest(Message.GetMessage("Usuari no connectado"));
-
-            List<Reservation> Reservations = dbHandler.Reservations.Where(x => x.Owner == user).ToList();
-            /*List<Reservation> r = dbHandler.Reservations.Join(dbHandler.Users, x => x.Owner.Id, us => us.Id, (x, us) => new ReservationViewModel
+            IEnumerable<ReservationViewModel> Reservations = null;
+            try
             {
-                MovieName = x.Projection.Movie.Name
-            });*/
+                Reservations = dbHandler.Reservations.Join(dbHandler.Users, x => x.Owner.Id, us => us.Id, (x, us) => new ReservationViewModel
+                {
+                    DateProjection = x.Projection.ProjectionDate,
+                    DateReservated = x.DateReservated,
+                    MovieName = x.Projection.Movie.Name,
+                    Price = x.Price,
+                    RowNumber = x.Seat.RowNumber,
+                    SeatNumber = x.Seat.SeatNumber,
+                    Status = x.Status,
+                    TheaterNumber = x.Projection.Theater.Number,
+                    UserName = x.Owner.Name,
+                    UserEmail = Email
+                }).Where(x => x.UserEmail == Email).ToArray();
+            } catch (Exception)
+            {
+                return BadRequest(Message.GetMessage("Error al intentar visualitzar les reserves"));
+            }
             return Ok(Reservations);
         }
 
         [HttpPost]
-        public ActionResult Create()
+        public ActionResult Create([FromBody] ReservationViewModel model)
         {
-
             return Ok();
         }
     }

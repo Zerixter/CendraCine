@@ -16,5 +16,6 @@ namespace cendracine.ViewModels
         public DateTime DateProjection { get; set; }
         public string MovieName { get; set; }
         public int TheaterNumber { get; set; }
+        public string UserEmail { get; set; }
     }
 }
