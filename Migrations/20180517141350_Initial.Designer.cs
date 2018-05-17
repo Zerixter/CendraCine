@@ -11,7 +11,7 @@ using System;
 namespace cendracine.Migrations
 {
     [DbContext(typeof(DbHandler))]
-    [Migration("20180516151418_Initial")]
+    [Migration("20180517141350_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -87,8 +87,13 @@ namespace cendracine.Migrations
 
                     b.Property<Guid?>("CategoryId");
 
+                    b.Property<string>("Cover")
+                        .HasMaxLength(1000);
+
                     b.Property<string>("Name")
                         .HasMaxLength(200);
+
+                    b.Property<Guid?>("OwnerId");
 
                     b.Property<int>("RecommendedAge");
 
@@ -102,6 +107,8 @@ namespace cendracine.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Movies");
                 });
 
@@ -110,9 +117,9 @@ namespace cendracine.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("Day");
-
                     b.Property<Guid?>("MovieId");
+
+                    b.Property<DateTime>("ProjectionDate");
 
                     b.Property<Guid?>("TheaterId");
 
@@ -236,6 +243,10 @@ namespace cendracine.Migrations
                     b.HasOne("cendracine.Models.Category")
                         .WithMany("Movies")
                         .HasForeignKey("CategoryId");
+
+                    b.HasOne("cendracine.Models.User", "Owner")
+                        .WithMany("Movies")
+                        .HasForeignKey("OwnerId");
                 });
 
             modelBuilder.Entity("cendracine.Models.Projection", b =>

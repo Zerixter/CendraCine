@@ -12,5 +12,6 @@ namespace cendracine.ViewModels
         public string Synopsis { get; set; }
         public string Trailer { get; set; }
         public int RecommendedAge { get; set; }
+        public string Cover { get; set; }
     }
 }

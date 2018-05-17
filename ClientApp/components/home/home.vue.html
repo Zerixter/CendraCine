@@ -1,5 +1,13 @@
 <template>
-    <div class="content">
-        <h1>Content Home</h1>
+    <div class="home-content container-fluid">
+        <div class="row">
+            <div class="col-md-3" v-for="item in movies">
+                <img class="d-block w-100" v-bind:src="item.cover">
+            </div>
+        </div>
     </div>
 </template>
+
+<style src="./home.css"></style>
+<script src="./home.ts"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>

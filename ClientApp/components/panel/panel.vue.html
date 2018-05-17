@@ -1,6 +1,82 @@
 <template>
-    <div>
-        <h1>Hola</h1>
-        <h2>JEJEJE</h2>
+    <div class="row center">
+        <div class="col-md-3 options">
+            <div class="content row">
+                <div class="col-md-4 icon-box film-box">
+                    <router-link to="/panel/pelicules">
+                        <i class="fa fa-film" aria-hidden="true"></i>
+                    </router-link>
+                </div>
+                <div class="col-md-8 content-box">
+                    <router-link to="/panel/pelicules">
+                        <div>
+                            0
+                        </div>
+                        <div>
+                            Películes
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 options">
+            <div class="content row">
+                <div class="col-md-4 icon-box billboard-box">
+                    <router-link to="/panel/cartelleres">
+                        <i class="fa fa-file" aria-hidden="true"></i>
+                    </router-link>
+                </div>
+                <div class="col-md-8 content-box">
+                    <router-link to="/panel/cartelleres">
+                        <div>
+                            0
+                        </div>
+                        <div>
+                            Cartelleres
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 options">
+            <div class="content row">
+                <div class="col-md-4 icon-box theater-box">
+                    <router-link to="/panel/cartelleres">
+                        <i class="fa fa-window-maximize" aria-hidden="true"></i>
+                    </router-link>
+                </div>
+                <div class="col-md-8 content-box">
+                    <router-link to="/panel/cartelleres">
+                        <div>
+                            0
+                        </div>
+                        <div>
+                            Sales
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 options">
+            <div class="content row">
+                <div class="col-md-4 icon-box category-box">
+                    <router-link to="/panel/cartelleres">
+                        <i class="fa fa-hashtag" aria-hidden="true"></i>
+                    </router-link>
+                </div>
+                <div class="col-md-8 content-box">
+                    <router-link to="/panel/cartelleres">
+                        <div>
+                            0
+                        </div>
+                        <div>
+                            Categories
+                        </div>
+                    </router-link>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
+
+<style src="./panel.css"></style>

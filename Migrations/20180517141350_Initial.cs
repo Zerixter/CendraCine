@@ -104,7 +104,9 @@ namespace cendracine.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false),
                     CategoryId = table.Column<Guid>(nullable: true),
+                    Cover = table.Column<string>(maxLength: 1000, nullable: true),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
+                    OwnerId = table.Column<Guid>(nullable: true),
                     RecommendedAge = table.Column<int>(nullable: false),
                     Synopsis = table.Column<string>(maxLength: 1000, nullable: true),
                     Trailer = table.Column<string>(maxLength: 1000, nullable: true)
@@ -112,6 +114,12 @@ namespace cendracine.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movies", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Movies_Users_OwnerId",
+                        column: x => x.OwnerId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -138,8 +146,8 @@ namespace cendracine.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    Day = table.Column<DateTime>(nullable: false),
                     MovieId = table.Column<Guid>(nullable: true),
+                    ProjectionDate = table.Column<DateTime>(nullable: false),
                     TheaterId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
@@ -220,6 +228,11 @@ namespace cendracine.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Movies_OwnerId",
+                table: "Movies",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Projections_MovieId",
                 table: "Projections",
                 column: "MovieId");
@@ -288,9 +301,6 @@ namespace cendracine.Migrations
                 name: "Seats");
 
             migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropTable(
                 name: "Theaters");
 
             migrationBuilder.DropTable(
@@ -298,6 +308,9 @@ namespace cendracine.Migrations
 
             migrationBuilder.DropTable(
                 name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

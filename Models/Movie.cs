@@ -16,9 +16,12 @@ namespace cendracine.Models
         public string Synopsis { get; set; }
         [MaxLength(1000)]
         public string Trailer { get; set; }
+        [MaxLength(1000)]
+        public string Cover { get; set; }
         [Required]
         public int RecommendedAge { get; set; }
 
+        public virtual User Owner { get; set; }
         public virtual List<BillboardMovieRegister> BillboardMovieRegister { get; set; } = new List<BillboardMovieRegister>();
         public virtual List<Category> Categories { get; set; } = new List<Category>();
         public virtual List<Projection> Projections { get; set; } = new List<Projection>();

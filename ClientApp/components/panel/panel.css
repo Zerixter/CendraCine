@@ -1,0 +1,35 @@
+/*.options {
+    padding: 0 40px;
+    margin-top: 20px;
+}
+div.content {
+    color: #000;
+    box-shadow: 0 3px 15px #bbb;
+    border-radius: 3px;
+    text-align: center;
+}
+div.content a {
+    color: #000;
+}
+div.content-box a:hover {
+    text-decoration: none;
+}
+.content-box {
+    padding: 10px;
+}
+.icon-box i {
+    font-size: 44px;
+    padding: 10px 0px;
+}
+.film-box {
+    background-color: #4ef1c0;
+}
+.billboard-box {
+    background-color: #fd9f63;
+}
+.theater-box {
+    background-color: #98c7f1;
+}
+.category-box {
+    background-color: #6bfd63;
+}*/

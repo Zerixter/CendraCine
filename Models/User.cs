@@ -20,5 +20,6 @@ namespace cendracine.Models
 
         public virtual List<Billboard> Billboards { get; set; } = new List<Billboard>();
         public virtual List<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public virtual List<Movie> Movies { get; set; } = new List<Movie>();
     }
 }

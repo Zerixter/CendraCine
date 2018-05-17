@@ -43,6 +43,9 @@ namespace cendracine.Data
             builder.Entity<Movie>()
                 .HasMany(x => x.Projections)
                 .WithOne(x => x.Movie);
+            builder.Entity<Movie>()
+                .HasOne(x => x.Owner)
+                .WithMany(x => x.Movies);
             #endregion
             #region Billboard
             builder.Entity<Billboard>()
@@ -63,6 +66,9 @@ namespace cendracine.Data
                 .WithOne(x => x.Owner);
             builder.Entity<User>()
                 .HasMany(x => x.Reservations)
+                .WithOne(x => x.Owner);
+            builder.Entity<User>()
+                .HasMany(x => x.Movies)
                 .WithOne(x => x.Owner);
             #endregion
             #region Category
