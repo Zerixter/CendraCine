@@ -47,6 +47,8 @@ namespace cendracine
                 options.AddPolicy("Administrador", policy => policy.RequireClaim("Admin"));
             });
 
+            services.AddCors();
+
             services.AddMvc();
         }
 
@@ -56,10 +58,6 @@ namespace cendracine
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseWebpackDevMiddleware(new WebpackDevMiddlewareOptions
-                {
-                    HotModuleReplacement = true
-                });
             }
             else
             {
@@ -68,17 +66,15 @@ namespace cendracine
 
             app.UseStaticFiles();
 
-            app.UseAuthentication();
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+            app.UseCors(builder =>
+            builder.AllowAnyHeader()
+                   .AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowCredentials()
+            );
 
-                routes.MapSpaFallbackRoute(
-                    name: "spa-fallback",
-                    defaults: new { controller = "Home", action = "Index" });
-            });
+            app.UseAuthentication();
+            app.UseMvc();
         }
     }
 }
