@@ -22,5 +22,7 @@ namespace cendracine.ViewModels
         public DateTime BeginDate { get; set; }
         [Required(ErrorMessage = "No s'ha introduit una data final")]
         public DateTime EndDate { get; set; }
+
+        public List<MovieViewModel> Movies { get; set; } = new List<MovieViewModel>();
     }
 }

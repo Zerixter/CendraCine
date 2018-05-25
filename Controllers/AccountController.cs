@@ -38,7 +38,7 @@ namespace cendracine.Controllers
             return Ok(token);
         }
 
-        [HttpGet("{id}", Name = "Get")]
+        [HttpGet("{id}", Name = "GetAccount")]
         public ActionResult Get(Guid id)
         {
             User user = dbHandler.Users.FirstOrDefault(x => x.Id == id);
@@ -54,7 +54,7 @@ namespace cendracine.Controllers
             return user;
         }
 
-        [HttpPost("register"), ValidateModel]
+        [HttpPost("register")]
         public ActionResult Register([FromBody] RegisterViewModel model)
         {
             User user = new User

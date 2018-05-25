@@ -1,4 +1,5 @@
-﻿using System;
+﻿using cendracine.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,5 +14,6 @@ namespace cendracine.ViewModels
         public string Trailer { get; set; }
         public int RecommendedAge { get; set; }
         public string Cover { get; set; }
+        public List<Category> Categories = new List<Category>();
     }
 }

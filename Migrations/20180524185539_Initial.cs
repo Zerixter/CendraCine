@@ -9,12 +9,26 @@ namespace cendracine.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    Name = table.Column<string>(maxLength: 200, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Theaters",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
                     Capacity = table.Column<int>(nullable: false),
-                    Number = table.Column<int>(nullable: false)
+                    Number = table.Column<int>(nullable: false),
+                    RowNumbers = table.Column<int>(nullable: false),
+                    SeatNumbers = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -79,31 +93,10 @@ namespace cendracine.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BillboardMovieRegisters",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(nullable: false),
-                    BillboardId = table.Column<Guid>(nullable: true),
-                    MovieId = table.Column<Guid>(nullable: true),
-                    TicketsPurchased = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_BillboardMovieRegisters", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BillboardMovieRegisters_Billboards_BillboardId",
-                        column: x => x.BillboardId,
-                        principalTable: "Billboards",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Movies",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
-                    CategoryId = table.Column<Guid>(nullable: true),
                     Cover = table.Column<string>(maxLength: 1000, nullable: true),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
                     OwnerId = table.Column<Guid>(nullable: true),
@@ -123,18 +116,50 @@ namespace cendracine.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Categories",
+                name: "BillboardMovieRegisters",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(nullable: false),
+                    BillboardId = table.Column<Guid>(nullable: true),
                     MovieId = table.Column<Guid>(nullable: true),
-                    Name = table.Column<string>(maxLength: 200, nullable: true)
+                    TicketsPurchased = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Categories", x => x.Id);
+                    table.PrimaryKey("PK_BillboardMovieRegisters", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Categories_Movies_MovieId",
+                        name: "FK_BillboardMovieRegisters_Billboards_BillboardId",
+                        column: x => x.BillboardId,
+                        principalTable: "Billboards",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BillboardMovieRegisters_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MovieCategories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    CategoryId = table.Column<Guid>(nullable: true),
+                    MovieId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MovieCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MovieCategories_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MovieCategories_Movies_MovieId",
                         column: x => x.MovieId,
                         principalTable: "Movies",
                         principalColumn: "Id",
@@ -218,14 +243,14 @@ namespace cendracine.Migrations
                 column: "OwnerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Categories_MovieId",
-                table: "Categories",
-                column: "MovieId");
+                name: "IX_MovieCategories_CategoryId",
+                table: "MovieCategories",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Movies_CategoryId",
-                table: "Movies",
-                column: "CategoryId");
+                name: "IX_MovieCategories_MovieId",
+                table: "MovieCategories",
+                column: "MovieId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Movies_OwnerId",
@@ -261,32 +286,15 @@ namespace cendracine.Migrations
                 name: "IX_Seats_TheaterId",
                 table: "Seats",
                 column: "TheaterId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_BillboardMovieRegisters_Movies_MovieId",
-                table: "BillboardMovieRegisters",
-                column: "MovieId",
-                principalTable: "Movies",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Movies_Categories_CategoryId",
-                table: "Movies",
-                column: "CategoryId",
-                principalTable: "Categories",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Categories_Movies_MovieId",
-                table: "Categories");
-
             migrationBuilder.DropTable(
                 name: "BillboardMovieRegisters");
+
+            migrationBuilder.DropTable(
+                name: "MovieCategories");
 
             migrationBuilder.DropTable(
                 name: "Reservations");
@@ -295,19 +303,19 @@ namespace cendracine.Migrations
                 name: "Billboards");
 
             migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
                 name: "Projections");
 
             migrationBuilder.DropTable(
                 name: "Seats");
 
             migrationBuilder.DropTable(
-                name: "Theaters");
-
-            migrationBuilder.DropTable(
                 name: "Movies");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "Theaters");
 
             migrationBuilder.DropTable(
                 name: "Users");

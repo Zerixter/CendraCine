@@ -32,10 +32,20 @@ namespace cendracine.Controllers
             return Ok(Billboards);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult GetBillboardId([FromRoute] string id)
+        {
+            Billboard billboard = dbHandler.Billboards.Include(x => x.BillboardMovieRegister).FirstOrDefault(x => x.Id.ToString() == id);
+            if (billboard is null)
+                return BadRequest();
+
+            return Ok(billboard);
+        }
+
         [HttpGet("actual")]
         public IActionResult GetBillBoard()
         {
-            List<Billboard> billBoards = dbHandler.Billboards.Where(x => x.BeginDate <= DateTime.Now && x.EndDate >= DateTime.Now).ToList();
+            List<Billboard> billBoards = dbHandler.Billboards.Include(x => x.BillboardMovieRegister).Where(x => x.BeginDate <= DateTime.Now && x.EndDate >= DateTime.Now).ToList();
             List<BillboardMovieRegister> billboardMovieRegisters = new List<BillboardMovieRegister>();
 
             DateTime DefaultDate = DateTime.Parse("10/10/1000").Date;
@@ -56,7 +66,10 @@ namespace cendracine.Controllers
 
                 foreach (BillboardMovieRegister bbmr in bb.BillboardMovieRegister)
                 {
-                    billboardMovieRegisters.Add(bbmr);
+                    BillboardMovieRegister bbmr_db = dbHandler.BillboardMovieRegisters.Include(x => x.Movie).FirstOrDefault(x => x.Id == bbmr.Id);
+                    if (bbmr_db is null)
+                        continue;
+                    billboardMovieRegisters.Add(bbmr_db);
                 }
             }
 
@@ -71,18 +84,19 @@ namespace cendracine.Controllers
             return Ok(Billboard);
         }
 
-        [HttpPost, ValidateModel, Authorize]
+        [HttpPost]
         public IActionResult CreateBillBoard([FromBody] BillboardViewModel model)
         {
-            string Email = User.FindFirstValue(ClaimTypes.Email);
+            /*string Email = User.FindFirstValue(ClaimTypes.Email);
             if (Email is null)
-                return BadRequest(Message.GetMessage("Token invalido"));
-            User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
+                return BadRequest(Message.GetMessage("Token invalido"));*/
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == "hamza@cendracine.com");
             if (user is null)
                 return BadRequest(Message.GetMessage("Usuari no connectado"));
 
             Billboard billboard = new Billboard
             {
+                Name = model.Name,
                 BeginDate = model.BeginDate,
                 EndDate = model.EndDate,
                 Owner = user
@@ -91,32 +105,25 @@ namespace cendracine.Controllers
             try
             {
                 dbHandler.Billboards.Add(billboard);
+                if (model.Movies.Count > 0)
+                {
+                    foreach (MovieViewModel movie in model.Movies)
+                    {
+                        Movie movie_db = dbHandler.Movies.FirstOrDefault(x => x.Id.ToString() == movie.Id);
+                        if (movie_db is null)
+                            continue;
+
+                        BillboardMovieRegister billboardMovieRegister = new BillboardMovieRegister
+                        {
+                            Movie = movie_db,
+                            Billboard = billboard
+                        };
+                        dbHandler.BillboardMovieRegisters.Add(billboardMovieRegister);
+                    }
+                }
                 dbHandler.SaveChanges();
             } catch (Exception)
             {
-                return BadRequest(Message.GetMessage("Error al intentar crear una cartellera"));
-            }
-            return Ok();
-        }
-
-        [HttpPost, ValidateModel]
-        public IActionResult CreateBillBoard([FromBody] BillboardViewModel model, User user)
-        {
-            Billboard billboard = new Billboard
-            {
-                BeginDate = model.BeginDate,
-                EndDate = model.EndDate,
-                Owner = user
-            };
-
-            try
-            {
-                dbHandler.Billboards.Add(billboard);
-                dbHandler.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
                 return BadRequest(Message.GetMessage("Error al intentar crear una cartellera"));
             }
             return Ok();
@@ -125,19 +132,39 @@ namespace cendracine.Controllers
         [HttpPut]
         public IActionResult UpdateBillBoard([FromBody] BillboardUpdateViewModel model)
         {
-            Billboard billBoardToUpdate = dbHandler.Billboards.FirstOrDefault(x => x.Id.ToString() == model.Id);
+            Billboard billBoardToUpdate = dbHandler.Billboards.Include(x => x.BillboardMovieRegister).FirstOrDefault(x => x.Id.ToString() == model.Id);
             DateTime DefaultDate = DateTime.Parse("10/10/1000").Date;
 
-            if (model.Name.Length > 0)
-                billBoardToUpdate.Name = model.Name;
-            if (model.BeginDate != DefaultDate)
-                billBoardToUpdate.BeginDate = model.BeginDate;
-            if (model.EndDate != DefaultDate)
-                billBoardToUpdate.EndDate = model.EndDate;
+            billBoardToUpdate.Name = (model.Name.Length > 0) ? model.Name : billBoardToUpdate.Name;
+            billBoardToUpdate.BeginDate = (model.BeginDate != DefaultDate) ? model.BeginDate : billBoardToUpdate.BeginDate;
+            billBoardToUpdate.EndDate = (model.EndDate != DefaultDate) ? model.EndDate : billBoardToUpdate.EndDate;
 
             try
             {
                 dbHandler.Billboards.Update(billBoardToUpdate);
+                List<Movie> moviesToIgnore = new List<Movie>();
+                foreach (BillboardMovieRegister bbmr in billBoardToUpdate.BillboardMovieRegister)
+                {
+                    BillboardMovieRegister bbmr_db = dbHandler.BillboardMovieRegisters.Include(x => x.Movie).FirstOrDefault(x => x.Id == bbmr.Id);
+                    if (bbmr_db is null || model.Movies.Contains(bbmr_db.Movie))
+                    {
+                        moviesToIgnore.Add(bbmr_db.Movie);
+                        continue;
+                    }
+                    dbHandler.BillboardMovieRegisters.Remove(bbmr_db);
+                }
+                foreach (Movie m in model.Movies)
+                {
+                    Movie is_in_db = dbHandler.Movies.FirstOrDefault(x => x.Id == m.Id);
+                    if (is_in_db is null || moviesToIgnore.Contains(is_in_db))
+                        continue;
+                    BillboardMovieRegister bbmr = new BillboardMovieRegister
+                    {
+                        Billboard = billBoardToUpdate,
+                        Movie = is_in_db
+                    };
+                    billBoardToUpdate.BillboardMovieRegister.Add(bbmr);
+                }
                 dbHandler.SaveChanges();
             } catch (Exception)
             {
@@ -146,15 +173,17 @@ namespace cendracine.Controllers
             return Ok();
         }
 
-        [HttpDelete]
-        public IActionResult DeleteBillBoard([FromBody] BillboardViewModel model)
+        [HttpDelete("{id}")]
+        public IActionResult DeleteBillBoard([FromRoute] string id)
         {
-            Billboard billBoardToDelete = dbHandler.Billboards.FirstOrDefault(x => x.Id.ToString() == model.Id);
+            Billboard billBoardToDelete = dbHandler.Billboards.Include(x => x.BillboardMovieRegister).FirstOrDefault(x => x.Id.ToString() == id);
             if (billBoardToDelete is null)
                 return NotFound();
 
             try
             {
+                List<BillboardMovieRegister> billboardMovieRegisters = dbHandler.BillboardMovieRegisters.Include(x => x.Billboard).Where(x => x.Billboard.Id == billBoardToDelete.Id).ToList();
+                dbHandler.BillboardMovieRegisters.RemoveRange(billboardMovieRegisters);
                 dbHandler.Billboards.Remove(billBoardToDelete);
                 dbHandler.SaveChanges();
             } catch (Exception)

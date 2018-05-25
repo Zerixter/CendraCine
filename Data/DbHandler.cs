@@ -23,6 +23,7 @@ namespace cendracine.Data
         public DbSet<Theater> Theaters { get; set; }
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<Seat> Seats { get; set; }
+        public DbSet<MovieCategory> MovieCategories { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -39,7 +40,8 @@ namespace cendracine.Data
                 .HasMany(x => x.BillboardMovieRegister)
                 .WithOne(x => x.Movie);
             builder.Entity<Movie>()
-                .HasMany(x => x.Categories);
+                .HasMany(x => x.MovieCategories)
+                .WithOne(x => x.Movie);
             builder.Entity<Movie>()
                 .HasMany(x => x.Projections)
                 .WithOne(x => x.Movie);
@@ -73,7 +75,8 @@ namespace cendracine.Data
             #endregion
             #region Category
             builder.Entity<Category>()
-                .HasMany(x => x.Movies);
+                .HasMany(x => x.MovieCategories)
+                .WithOne(x => x.Category);
             #endregion
             #region Projection
             builder.Entity<Projection>()
@@ -112,6 +115,14 @@ namespace cendracine.Data
             builder.Entity<Seat>()
                 .HasMany(x => x.Reservations)
                 .WithOne(x => x.Seat);
+            #endregion
+            #region MovieCategory
+            builder.Entity<MovieCategory>()
+                .HasOne(x => x.Category)
+                .WithMany(x => x.MovieCategories);
+            builder.Entity<MovieCategory>()
+                .HasOne(x => x.Movie)
+                .WithMany(x => x.MovieCategories);
             #endregion
         }
     }

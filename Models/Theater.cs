@@ -14,6 +14,10 @@ namespace cendracine.Models
         public int Number { get; set; }
         [Required]
         public int Capacity { get; set; }
+        [Required]
+        public int RowNumbers { get; set; }
+        [Required]
+        public int SeatNumbers { get; set; }
 
         public virtual List<Projection> Projections { get; set; } = new List<Projection>();
         public virtual List<Seat> Seats { get; set; } = new List<Seat>();

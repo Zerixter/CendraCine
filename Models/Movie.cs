@@ -23,7 +23,7 @@ namespace cendracine.Models
 
         public virtual User Owner { get; set; }
         public virtual List<BillboardMovieRegister> BillboardMovieRegister { get; set; } = new List<BillboardMovieRegister>();
-        public virtual List<Category> Categories { get; set; } = new List<Category>();
+        public virtual List<MovieCategory> MovieCategories { get; set; } = new List<MovieCategory>();
         public virtual List<Projection> Projections { get; set; } = new List<Projection>();
     }
 }

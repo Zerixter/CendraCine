@@ -11,7 +11,7 @@ using System;
 namespace cendracine.Migrations
 {
     [DbContext(typeof(DbHandler))]
-    [Migration("20180517141350_Initial")]
+    [Migration("20180524185539_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -68,14 +68,10 @@ namespace cendracine.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<Guid?>("MovieId");
-
                     b.Property<string>("Name")
                         .HasMaxLength(200);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MovieId");
 
                     b.ToTable("Categories");
                 });
@@ -84,8 +80,6 @@ namespace cendracine.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<Guid?>("CategoryId");
 
                     b.Property<string>("Cover")
                         .HasMaxLength(1000);
@@ -105,11 +99,27 @@ namespace cendracine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Movies");
+                });
+
+            modelBuilder.Entity("cendracine.Models.MovieCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<Guid?>("CategoryId");
+
+                    b.Property<Guid?>("MovieId");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("MovieId");
+
+                    b.ToTable("MovieCategories");
                 });
 
             modelBuilder.Entity("cendracine.Models.Projection", b =>
@@ -187,6 +197,10 @@ namespace cendracine.Migrations
 
                     b.Property<int>("Number");
 
+                    b.Property<int>("RowNumbers");
+
+                    b.Property<int>("SeatNumbers");
+
                     b.HasKey("Id");
 
                     b.ToTable("Theaters");
@@ -231,22 +245,22 @@ namespace cendracine.Migrations
                         .HasForeignKey("MovieId");
                 });
 
-            modelBuilder.Entity("cendracine.Models.Category", b =>
-                {
-                    b.HasOne("cendracine.Models.Movie")
-                        .WithMany("Categories")
-                        .HasForeignKey("MovieId");
-                });
-
             modelBuilder.Entity("cendracine.Models.Movie", b =>
                 {
-                    b.HasOne("cendracine.Models.Category")
-                        .WithMany("Movies")
-                        .HasForeignKey("CategoryId");
-
                     b.HasOne("cendracine.Models.User", "Owner")
                         .WithMany("Movies")
                         .HasForeignKey("OwnerId");
+                });
+
+            modelBuilder.Entity("cendracine.Models.MovieCategory", b =>
+                {
+                    b.HasOne("cendracine.Models.Category", "Category")
+                        .WithMany("MovieCategories")
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("cendracine.Models.Movie", "Movie")
+                        .WithMany("MovieCategories")
+                        .HasForeignKey("MovieId");
                 });
 
             modelBuilder.Entity("cendracine.Models.Projection", b =>

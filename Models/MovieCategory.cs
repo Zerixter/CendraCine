@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace cendracine.Models
 {
-    public class Category
+    public class MovieCategory
     {
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
-        [MaxLength(200)]
-        public string Name { get; set; }
-
-        public virtual List<MovieCategory> MovieCategories { get; set; } = new List<MovieCategory>();
+        public virtual Category Category { get; set; }
+        public virtual Movie Movie { get; set; }
     }
 }
