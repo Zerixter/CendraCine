@@ -1,4 +1,5 @@
-﻿using System;
+﻿using cendracine.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -23,6 +24,6 @@ namespace cendracine.ViewModels
         [Required(ErrorMessage = "No s'ha introduit una data final")]
         public DateTime EndDate { get; set; }
 
-        public List<MovieViewModel> Movies { get; set; } = new List<MovieViewModel>();
+        public List<Movie> Movies { get; set; } = new List<Movie>();
     }
 }

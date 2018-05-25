@@ -107,9 +107,9 @@ namespace cendracine.Controllers
                 dbHandler.Billboards.Add(billboard);
                 if (model.Movies.Count > 0)
                 {
-                    foreach (MovieViewModel movie in model.Movies)
+                    foreach (Movie movie in model.Movies)
                     {
-                        Movie movie_db = dbHandler.Movies.FirstOrDefault(x => x.Id.ToString() == movie.Id);
+                        Movie movie_db = dbHandler.Movies.FirstOrDefault(x => x.Id == movie.Id);
                         if (movie_db is null)
                             continue;
 

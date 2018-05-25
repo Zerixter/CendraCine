@@ -24,24 +24,30 @@ namespace cendracine.Controllers
         public async Task<ActionResult> UploadImage(IFormFile file)
         {
             if (file == null || file.Length == 0)
-                return null;
+                return BadRequest();
 
             if (file.ContentType != "image/jpeg" && file.ContentType != "image/png" && file.ContentType != "image/jpg")
             {
-                return null;
+                return BadRequest();
             }
 
-            var Name = file.FileName;
-
-            var path = Path.Combine(
-                        Directory.GetCurrentDirectory(), @"assets/covers",
-                        Name);
-
-            using (var stream = new FileStream(path, FileMode.Create))
+            try
             {
-                await file.CopyToAsync(stream);
+                var Name = file.FileName;
+
+                var path = Path.Combine(
+                            Directory.GetCurrentDirectory(), @"assets/covers",
+                            Name);
+
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                return Ok(path);
+            } catch (Exception)
+            {
+                return BadRequest();
             }
-            return Ok(path);
         }
     }
 }
