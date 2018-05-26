@@ -25,37 +25,85 @@ namespace cendracine.Controllers
         [HttpGet]
         public ActionResult GetProjections()
         {
-            List<Projection> projections = dbHandler.Projections.ToList();
+            List<Projection> projections = dbHandler.Projections.Include(x => x.Movie).Include(x => x.Theater).ToList();
             return Ok(projections);
         }
 
         [HttpGet("{id}")]
         public ActionResult GetProjection([FromRoute] string id)
         {
-            Projection projection = dbHandler.Projections.FirstOrDefault(x => x.Id.ToString() == id);
+            Projection projection = dbHandler.Projections.Include(x => x.Movie).Include(x => x.Theater).FirstOrDefault(x => x.Id.ToString() == id);
             if (projection is null)
                 return BadRequest();
 
             return Ok(projection);
         }
 
+        [HttpPost("movie")]
+        public ActionResult GetProjectionsOfMovie([FromBody] ProjectionMovieViewModel model)
+        {
+            try
+            {
+                Movie movie = dbHandler.Movies.FirstOrDefault(x => x.Id.ToString() == model.Movie.Id);
+                if (movie is null)
+                    return BadRequest();
+                if (model.EndDate == DateTime.Parse("10/10/1000") || model.BeginDate == DateTime.Parse("10/10/1000"))
+                    return BadRequest();
+
+                List<Projection> projections = 
+                    dbHandler.
+                    Projections.
+                    Include(x => x.Reservations).
+                    Include(x => x.Movie).
+                    Include(x => x.Theater).
+                    Where(
+                        x => 
+                        x.ProjectionDate >= model.BeginDate &&
+                        x.ProjectionDate <= model.EndDate &&
+                        x.Movie.Id == movie.Id &&
+                        x.Reservations.Count < x.Theater.Capacity
+                    ).ToList();
+
+                return Ok(projections);
+            } catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("seats/{id}")]
+        public ActionResult GetSeatsFromProjection([FromRoute] string id)
+        {
+            try
+            {
+                Projection projection = dbHandler.Projections.Include(x => x.Theater).FirstOrDefault(x => x.Id.ToString() == id);
+                if (projection is null)
+                    return BadRequest();
+                List<Seat> Seats = dbHandler.Seats.Include(x => x.Theater).Include(x => x.Reservations).Where(x => x.Theater.Id == projection.Theater.Id).ToList();
+
+                return Ok(Seats);
+            } catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost]
         public ActionResult CreateProjection([FromBody] ProjectionViewModel model)
         {
-            Movie movie = dbHandler.Movies.FirstOrDefault(x => x.Id == model.Movie.Id);
-            if (movie is null)
-                return BadRequest();
-            Theater theater = dbHandler.Theaters.FirstOrDefault(x => x.Id == model.Theater.Id);
-            if (theater is null)
-                return BadRequest();
-
             try
             {
+                Movie movie = dbHandler.Movies.FirstOrDefault(x => x.Id.ToString() == model.Movie.Id);
+                if (movie is null)
+                    return BadRequest();
+                Theater theater = dbHandler.Theaters.FirstOrDefault(x => x.Id.ToString() == model.Theater.Id);
+                if (theater is null)
+                    return BadRequest();
                 Projection projection = new Projection
                 {
                     ProjectionDate = model.ProjectionDate,
                     Movie = movie,
-                    Theater = model.Theater
+                    Theater = theater
                 };
                 dbHandler.Projections.Add(projection);
                 dbHandler.SaveChanges();
@@ -73,14 +121,14 @@ namespace cendracine.Controllers
             if (projection is null)
                 return BadRequest();
 
-            if (projection.Theater.Id != model.Theater.Id)
+            if (projection.Theater.Id.ToString() != model.Theater.Id)
             {
-                Theater theater = dbHandler.Theaters.FirstOrDefault(x => x.Id == model.Theater.Id);
+                Theater theater = dbHandler.Theaters.FirstOrDefault(x => x.Id.ToString() == model.Theater.Id);
                 projection.Theater = theater ?? projection.Theater;
             }
-            if (projection.Movie.Id != model.Movie.Id)
+            if (projection.Movie.Id.ToString() != model.Movie.Id)
             {
-                Movie movie = dbHandler.Movies.FirstOrDefault(x => x.Id == model.Movie.Id);
+                Movie movie = dbHandler.Movies.FirstOrDefault(x => x.Id.ToString() == model.Movie.Id);
                 projection.Movie = movie ?? projection.Movie;
             }
             projection.ProjectionDate = (projection.ProjectionDate != model.ProjectionDate && model.ProjectionDate != DateTime.Parse("10/10/1000").Date) ? model.ProjectionDate : projection.ProjectionDate;
