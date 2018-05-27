@@ -7,15 +7,11 @@ namespace cendracine.ViewModels
 {
     public class ReservationViewModel
     {
-        public DateTime DateReservated { get; set; }
-        public bool Status { get; set; }
-        public float Price { get; set; }
-        public string UserName { get; set; }
-        public int SeatNumber { get; set; }
-        public int RowNumber { get; set; }
-        public DateTime DateProjection { get; set; }
-        public string MovieName { get; set; }
-        public int TheaterNumber { get; set; }
-        public string UserEmail { get; set; }
+        public DateTime DateReservated { get; set; } = DateTime.Now;
+        public bool Status { get; set; } = false;
+        public float Price { get; set; } = 0;
+        public ProjectionViewModel Projection { get; set; }
+        public TheaterViewModel Theater { get; set; }
+        public SeatViewModel Seat { get; set; }
     }
 }

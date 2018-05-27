@@ -4,6 +4,7 @@ using cendracine.Models;
 using cendracine.Properties;
 using cendracine.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -69,7 +70,15 @@ namespace cendracine.Controllers
                 dbHandler.Users.Add(user);
                 dbHandler.SaveChanges();
                 var token = LoginUser(user);
-                return Ok(token);
+                UserViewModel userLogged = new UserViewModel
+                {
+                    Email = user.Email,
+                    Name = user.Name,
+                    Role = user.Role,
+                    Token = token
+                };
+
+                return Ok(userLogged);
             } catch (Exception)
             {
                 return BadRequest(Message.GetMessage("Error al registrar el usuari"));
@@ -83,7 +92,14 @@ namespace cendracine.Controllers
             if (user is null)
                 return BadRequest();
             var token = LoginUser(user);
-            return Ok(token);
+            UserViewModel userLogged = new UserViewModel
+            {
+                Email = user.Email,
+                Name = user.Name,
+                Role = user.Role,
+                Token = token
+            };
+            return Ok(userLogged);
         }
 
         [HttpPut]

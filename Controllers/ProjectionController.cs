@@ -79,9 +79,34 @@ namespace cendracine.Controllers
                 Projection projection = dbHandler.Projections.Include(x => x.Theater).FirstOrDefault(x => x.Id.ToString() == id);
                 if (projection is null)
                     return BadRequest();
-                List<Seat> Seats = dbHandler.Seats.Include(x => x.Theater).Include(x => x.Reservations).Where(x => x.Theater.Id == projection.Theater.Id).ToList();
+                //List<Seat> Seats = dbHandler.Seats.Include(x => x.Theater).Include(x => x.Reservations).Where(x => x.Theater.Id == projection.Theater.Id).ToList();
+                IEnumerable<GetSeatsViewModel> Seats = dbHandler.Seats.Join(dbHandler.Theaters, x => x.Theater.Id, s => s.Id, (x, s) => new GetSeatsViewModel
+                {
+                    Id = x.Id.ToString(),
+                    Theater = x.Theater,
+                    RowNumber = x.RowNumber,
+                    SeatNumber = x.SeatNumber,
+                    Reservations = x.Reservations,
+                    Occuped = false
+                }).Where(x => x.Theater.Id == projection.Theater.Id);
 
                 return Ok(Seats);
+            } catch (Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("reservations/{id}")]
+        public ActionResult GetReservationsFromProjections([FromRoute] string id)
+        {
+            try
+            {
+                Projection projection = dbHandler.Projections.FirstOrDefault(x => x.Id.ToString() == id);
+                if (projection is null)
+                    return BadRequest();
+                List<Reservation> reservations = dbHandler.Reservations.Include(x => x.Projection).Where(x => x.Projection.Id == projection.Id).ToList();
+                return Ok(reservations);
             } catch (Exception)
             {
                 return BadRequest();
