@@ -88,6 +88,8 @@ namespace cendracine.Migrations
 
                     b.Property<Guid?>("OwnerId");
 
+                    b.Property<float>("Rating");
+
                     b.Property<int>("RecommendedAge");
 
                     b.Property<string>("Synopsis")

@@ -87,23 +87,21 @@ namespace cendracine.Controllers
         [HttpPost]
         public IActionResult CreateBillBoard([FromBody] BillboardViewModel model)
         {
-            /*string Email = User.FindFirstValue(ClaimTypes.Email);
+            string Email = User.FindFirstValue(ClaimTypes.Email);
             if (Email is null)
-                return BadRequest(Message.GetMessage("Token invalido"));*/
-            User user = dbHandler.Users.FirstOrDefault(x => x.Email == "hamza@cendracine.com");
+                return BadRequest();
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
             if (user is null)
-                return BadRequest(Message.GetMessage("Usuari no connectado"));
-
-            Billboard billboard = new Billboard
-            {
-                Name = model.Name,
-                BeginDate = model.BeginDate,
-                EndDate = model.EndDate,
-                Owner = user
-            };
-
+                return BadRequest();
             try
             {
+                Billboard billboard = new Billboard
+                {
+                    Name = model.Name,
+                    BeginDate = model.BeginDate,
+                    EndDate = model.EndDate,
+                    Owner = user
+                };
                 dbHandler.Billboards.Add(billboard);
                 if (model.Movies.Count > 0)
                 {

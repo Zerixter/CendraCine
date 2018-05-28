@@ -37,14 +37,14 @@ namespace cendracine.Controllers
                 var Name = file.FileName;
 
                 var path = Path.Combine(
-                            Directory.GetCurrentDirectory(), @"assets/covers",
+                            Directory.GetCurrentDirectory(), @"wwwroot/assets",
                             Name);
 
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
                     await file.CopyToAsync(stream);
                 }
-                return Ok(path);
+                return Ok("http://localhost:5000/assets/" + Name);
             } catch (Exception)
             {
                 return BadRequest();

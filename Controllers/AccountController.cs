@@ -39,6 +39,17 @@ namespace cendracine.Controllers
             return Ok(token);
         }
 
+        [HttpGet("role")]
+        public ActionResult GetRole()
+        {
+            string Email = User.FindFirstValue(ClaimTypes.Email);
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
+            if (user is null)
+                return BadRequest();
+
+            return Ok(user.Role);
+        }
+
         [HttpGet("{id}", Name = "GetAccount")]
         public ActionResult Get(Guid id)
         {

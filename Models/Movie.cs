@@ -20,6 +20,7 @@ namespace cendracine.Models
         public string Cover { get; set; }
         [Required]
         public int RecommendedAge { get; set; }
+        public float Rating { get; set; } = 0;
 
         public virtual User Owner { get; set; }
         public virtual List<BillboardMovieRegister> BillboardMovieRegister { get; set; } = new List<BillboardMovieRegister>();

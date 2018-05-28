@@ -28,7 +28,8 @@ namespace cendracine.Controllers
         [HttpGet]
         public ActionResult GetReservations()
         {
-            User user = dbHandler.Users.FirstOrDefault(x => x.Email == "hamza@cendracine.com");
+            string Email = User.FindFirstValue(ClaimTypes.Email);
+            User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
             if (user is null)
                 return BadRequest();
             List<Reservation> reservations = dbHandler.Reservations.Include(x => x.Projection).Include(x => x.Seat).Include(x => x.Owner).Where(x => x.Owner.Id == user.Id).ToList();
@@ -40,8 +41,8 @@ namespace cendracine.Controllers
         {
             try
             {
-                //User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
-                User user = dbHandler.Users.FirstOrDefault(x => x.Email == "hamza@cendracine.com");
+                string Email = User.FindFirstValue(ClaimTypes.Email);
+                User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
                 if (user is null)
                     return BadRequest();
                 Projection projection = dbHandler.Projections.FirstOrDefault(x => x.Id.ToString() == model.Projection.Id);

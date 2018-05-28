@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using cendracine.Data;
 using cendracine.Helpers;
 using cendracine.Models;
+using cendracine.Properties;
 using cendracine.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace cendracine.Controllers
 {
@@ -43,24 +47,25 @@ namespace cendracine.Controllers
         {
             string Email = User.FindFirstValue(ClaimTypes.Email);
             if (Email is null)
-                return BadRequest(Message.GetMessage("Token invalido"));
+                return BadRequest();
             User user = dbHandler.Users.FirstOrDefault(x => x.Email == Email);
-            //User user = dbHandler.Users.FirstOrDefault(x => x.Email == "hamza@cendracine.com");
             if (user is null)
-                return BadRequest(Message.GetMessage("Usuari no connectado"));
-
-            Movie movie = new Movie
-            {
-                Name = model.Name,
-                RecommendedAge = model.RecommendedAge,
-                Synopsis = model.Synopsis,
-                Trailer = model.Trailer,
-                Cover = model.Cover,
-                Owner = user
-            };
+                return BadRequest();
 
             try
             {
+                float Rating = GetRating(model);
+
+                Movie movie = new Movie
+                {
+                    Name = model.Name,
+                    RecommendedAge = model.RecommendedAge,
+                    Synopsis = model.Synopsis,
+                    Trailer = model.Trailer,
+                    Cover = model.Cover,
+                    Owner = user,
+                    Rating = Rating
+                };
                 dbHandler.Movies.Add(movie);
                 if (model.Categories.Count > 0)
                 {
@@ -92,7 +97,11 @@ namespace cendracine.Controllers
             if (movieToSearch is null)
                 return BadRequest();
 
-            movieToSearch.Cover = (model.Cover != movieToSearch.Cover && model.Cover.Length > 0) ? model.Cover : movieToSearch.Cover;
+            if (model.Cover != movieToSearch.Cover && model.Cover.Length > 0)
+            {
+                DeleteImage(movieToSearch.Cover);
+                movieToSearch.Cover = model.Cover;
+            }
             movieToSearch.Name = (model.Name != movieToSearch.Name && model.Name.Length > 0) ? model.Name : movieToSearch.Name;
             movieToSearch.RecommendedAge = (model.RecommendedAge != movieToSearch.RecommendedAge && model.RecommendedAge != 0) ? model.RecommendedAge : movieToSearch.RecommendedAge;
             movieToSearch.Synopsis = (model.Synopsis != movieToSearch.Synopsis && model.Synopsis.Length > 0) ? model.Synopsis : movieToSearch.Synopsis;
@@ -147,11 +156,58 @@ namespace cendracine.Controllers
                 dbHandler.MovieCategories.RemoveRange(movieCategories);
                 dbHandler.Movies.Remove(movieToDelete);
                 dbHandler.SaveChanges();
+                DeleteImage(movieToDelete.Cover);
             } catch (Exception)
             {
                 return BadRequest();
             }
             return Ok();
+        }
+
+        public float GetRating(MovieViewModel model)
+        {
+            string ApiKey = Resources.ImdbAPI;
+            string[] Name = model.Name.Split(" ");
+            string MovieName = "";
+            string s = "";
+            foreach (var n in Name)
+            {
+                MovieName += s + n;
+                s = "-";
+            }
+
+            MovieName = MovieName.ToLower();
+
+            HttpClient httpClient = new HttpClient
+            {
+                BaseAddress = new Uri("http://www.omdbapi.com/")
+            };
+            httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, $"?apikey={ApiKey}&t={MovieName}");
+
+                var x = httpClient.SendAsync(request).GetAwaiter().GetResult();
+                string json_txt = x.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+
+                ImdbViewModel imdb = JsonConvert.DeserializeObject<ImdbViewModel>(json_txt);
+                return float.Parse(imdb.imdbRating);
+            } catch (Exception)
+            {
+                return 0;
+            }
+        }
+
+        public void DeleteImage(string Cover)
+        {
+            Cover = Cover.Replace("http://localhost:5000/assets/", "");
+            var path = Path.Combine(
+                        Directory.GetCurrentDirectory(), @"wwwroot/assets",
+                        Cover);
+            if (System.IO.File.Exists(path))
+            {
+                System.IO.File.Delete(path);
+            }
         }
     }
 }

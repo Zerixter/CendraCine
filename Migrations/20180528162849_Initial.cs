@@ -100,6 +100,7 @@ namespace cendracine.Migrations
                     Cover = table.Column<string>(maxLength: 1000, nullable: true),
                     Name = table.Column<string>(maxLength: 200, nullable: true),
                     OwnerId = table.Column<Guid>(nullable: true),
+                    Rating = table.Column<float>(nullable: false),
                     RecommendedAge = table.Column<int>(nullable: false),
                     Synopsis = table.Column<string>(maxLength: 1000, nullable: true),
                     Trailer = table.Column<string>(maxLength: 1000, nullable: true)

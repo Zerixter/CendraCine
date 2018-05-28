@@ -77,6 +77,15 @@ namespace cendracine.Properties {
                 return ResourceManager.GetString("Domain", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to 4e1d9dcb.
+        /// </summary>
+        internal static string ImdbAPI {
+            get {
+                return ResourceManager.GetString("ImdbAPI", resourceCulture);
+            }
+        }
 
         /// <summary>
         ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;

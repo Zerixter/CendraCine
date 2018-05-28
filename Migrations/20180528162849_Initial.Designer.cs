@@ -11,7 +11,7 @@ using System;
 namespace cendracine.Migrations
 {
     [DbContext(typeof(DbHandler))]
-    [Migration("20180524185539_Initial")]
+    [Migration("20180528162849_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -88,6 +88,8 @@ namespace cendracine.Migrations
                         .HasMaxLength(200);
 
                     b.Property<Guid?>("OwnerId");
+
+                    b.Property<float>("Rating");
 
                     b.Property<int>("RecommendedAge");
 
