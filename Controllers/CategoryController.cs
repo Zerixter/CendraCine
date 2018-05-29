@@ -7,6 +7,7 @@ using cendracine.Models;
 using cendracine.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace cendracine.Controllers
 {
@@ -44,6 +45,15 @@ namespace cendracine.Controllers
             if (category is null)
                 return BadRequest();
             return Ok(category);
+        }
+
+        [HttpGet("moviecategory/{id}")]
+        public ActionResult GetMovieCategory(string id)
+        {
+            List<MovieCategory> movieCategory = dbHandler.MovieCategories.Include(x => x.Category).Include(x => x.Movie).Where(x => x.Movie.Id.ToString() == id).ToList();
+            if (movieCategory is null)
+                return BadRequest();
+            return Ok(movieCategory);
         }
         
         // POST: api/Category
