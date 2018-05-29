@@ -152,8 +152,20 @@ namespace cendracine.Controllers
 
             try
             {
+                // Faig que es borri manualment en comptes de deixar que ho faci el Entity Framework Perquè el Entity Framework No sap en quin ordre borrar les coses amb el Delete Cascade
                 List<MovieCategory> movieCategories = dbHandler.MovieCategories.Include(x => x.Movie).Where(x => x.Movie.Id == movieToDelete.Id).ToList();
+                List<Projection> projections = dbHandler.Projections.Include(x => x.Movie).Where(x => x.Movie.Id == movieToDelete.Id).ToList();
+                List<Reservation> reservations = new List<Reservation>();
+                foreach (Projection projection in projections)
+                {
+                    Reservation reservation = dbHandler.Reservations.Include(x => x.Projection).FirstOrDefault(x => x.Projection.Id == projection.Id);
+                    if (reservation != null) reservations.Add(reservation);
+                }
+                List<BillboardMovieRegister> bbmr = dbHandler.BillboardMovieRegisters.Include(x => x.Movie).Where(x => x.Movie.Id == movieToDelete.Id).ToList();
                 dbHandler.MovieCategories.RemoveRange(movieCategories);
+                dbHandler.BillboardMovieRegisters.RemoveRange(bbmr);
+                dbHandler.Reservations.RemoveRange(reservations);
+                dbHandler.Projections.RemoveRange(projections);
                 dbHandler.Movies.Remove(movieToDelete);
                 dbHandler.SaveChanges();
                 DeleteImage(movieToDelete.Cover);
