@@ -24,7 +24,8 @@ namespace cendracine.Controllers
         [HttpGet("billboard/{id}")]
         public ActionResult GetBMR([FromRoute] string id)
         {
-            List<BillboardMovieRegister> billboardMovieRegister = dbHandler.BillboardMovieRegisters.Include(x => x.Billboard).Include(x => x.Movie).Where(x => x.Billboard.Id.ToString() == id).ToList();
+            List<BillboardMovieRegister
+                > billboardMovieRegister = dbHandler.BillboardMovieRegisters.Include(x => x.Billboard).Include(x => x.Movie).Where(x => x.Billboard.Id.ToString() == id).ToList();
             if (billboardMovieRegister is null)
                 return BadRequest();
 
